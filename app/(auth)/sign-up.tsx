@@ -15,14 +15,19 @@ import {
 } from "react-native";
 import React, { useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import Colors from "../../constants/Colors";
 import { SignUpFormData } from "@/constants/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { register } from "@/api-client";
+import ToastManager, { Toast } from "toastify-react-native";
 
 const signUpImage = require("../../assets/images/sign-up-moving-image.png");
 
 const SignUpScreen = () => {
   const colorScheme = useColorScheme() || "light"; // Default to "light" if colorScheme is null or undefined
+  // const queryClient = useQueryClient();
+  const router = useRouter();
 
   const {
     control,
@@ -31,17 +36,21 @@ const SignUpScreen = () => {
     formState: { errors },
   } = useForm<SignUpFormData>();
 
+  const mutation = useMutation({
+    mutationFn: register,
+    onSuccess: async () => {
+      //invalidate credentials
+      console.warn("Registration successful");
+      Toast.success("Registration successful");
+      router.push("/sign-in");
+    },
+    onError: (error: Error) => {
+      Toast.error(error.message, "top");
+    },
+  });
+
   const onSubmit = (data: SignUpFormData) => {
-    console.log(data);
-    Alert.alert("Success", "Your account has been created.");
-    reset({
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      phoneNumber: "",
-      address: "",
-    });
+    mutation.mutate(data);
   };
 
   // Animation values
@@ -68,6 +77,7 @@ const SignUpScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
+      <ToastManager />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
@@ -84,6 +94,7 @@ const SignUpScreen = () => {
           <Text style={[styles.heading, { color: Colors[colorScheme].text }]}>
             Create an Account
           </Text>
+
           <Text
             style={[styles.subHeading, { color: Colors[colorScheme].text }]}
           >
@@ -264,6 +275,7 @@ const SignUpScreen = () => {
 
           <Button
             title="Submit"
+            disabled={mutation.isPending}
             onPress={handleSubmit(onSubmit)}
             color={Colors[colorScheme].tint}
           />

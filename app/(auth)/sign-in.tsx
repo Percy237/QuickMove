@@ -15,13 +15,17 @@ import {
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import Colors from "../../constants/Colors";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import { SignInFormData } from "@/constants/types";
 import { useForm, Controller } from "react-hook-form";
 const signInImage = require("../../assets/images/people-carrying-delivering-big-box-delivery-workers-working-warehouse-men-with-goods-carton-packaging-hands-two-guys-with-load.png");
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import ToastManager, { Toast } from "toastify-react-native";
+import { login } from "@/api-client";
 
 const SignInScreen = () => {
   const colorScheme = useColorScheme() || "light"; // Default to "light" if colorScheme is null or undefined
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -29,10 +33,22 @@ const SignInScreen = () => {
     formState: { errors },
   } = useForm<SignInFormData>();
 
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: async () => {
+      //invalidate credentials
+      Toast.success("Login Successful");
+      router.push("/(user)");
+    },
+    onError: (error: Error) => {
+      Toast.error("Invalid credentials", "top");
+      console.log(error.message);
+    },
+  });
+
   const onSubmit = (data: SignInFormData) => {
     console.log(data);
-    Alert.alert("Success", "You have signed in.");
-    reset();
+    mutation.mutate(data);
   };
 
   // Animation values
@@ -62,6 +78,7 @@ const SignInScreen = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
+        <ToastManager />
         <Animated.View
           style={[
             styles.container,
@@ -147,6 +164,7 @@ const SignInScreen = () => {
 
           <Button
             title="Submit"
+            disabled={mutation.isPending}
             onPress={handleSubmit(onSubmit)}
             color={Colors[colorScheme].tint}
           />

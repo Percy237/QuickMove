@@ -2,6 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import Button from "../components/Button";
 import { Link } from "expo-router";
+import { logout } from "@/api-client";
 
 const index = () => {
   return (
@@ -15,6 +16,7 @@ const index = () => {
       <Link href={"/sign-in"} asChild>
         <Button text="SignIn" />
       </Link>
+      <Button text="Logout" onPress={logout} />
     </View>
   );
 };
