@@ -18,7 +18,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Link, Stack, useRouter } from "expo-router";
 import Colors from "../../constants/Colors";
 import { SignUpFormData } from "@/constants/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { register } from "@/api-client";
 import ToastManager, { Toast } from "toastify-react-native";
 
@@ -26,7 +26,7 @@ const signUpImage = require("../../assets/images/sign-up-moving-image.png");
 
 const SignUpScreen = () => {
   const colorScheme = useColorScheme() || "light"; // Default to "light" if colorScheme is null or undefined
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
@@ -39,7 +39,7 @@ const SignUpScreen = () => {
   const mutation = useMutation({
     mutationFn: register,
     onSuccess: async () => {
-      //invalidate credentials
+      await queryClient.invalidateQueries({ queryKey: ["validateToken"] });
       console.warn("Registration successful");
       Toast.success("Registration successful");
       router.push("/sign-in");
@@ -345,3 +345,24 @@ const styles = StyleSheet.create({
 });
 
 export default SignUpScreen;
+
+{
+  /* <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+              Business Registration Document
+            </Text>
+            <Controller
+              control={control}
+              name="businessRegistrationDocument"
+              render={({ field: { onChange, value } }) => (
+                <Button
+                  title={value ? "Document Uploaded" : "Upload Document"}
+                  onPress={() =>
+                    handleDocumentUpload(
+                      "businessRegistrationDocument",
+                      onChange
+                    )
+                  }
+                />
+              )}
+            /> */
+}

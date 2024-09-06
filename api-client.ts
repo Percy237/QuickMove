@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
-import { SignUpFormData } from "./constants/types";
+import { MoverFormData, SignUpFormData } from "./constants/types";
 import { SignInFormData } from "./constants/types";
+import { useRouter } from "expo-router";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -30,13 +31,28 @@ export const login = async (formData: SignInFormData): Promise<any> => {
   });
 
   if (response.ok) {
-    const { token } = await response.json();
+    const { token, role } = await response.json();
     await SecureStore.setItemAsync("jwt_token", token);
+    await SecureStore.setItemAsync("role", role);
     console.log("Token stored successfully");
+    console.log("Role stored successfully");
     return true;
   } else {
     const error = await response.json();
     throw new Error(error.message);
+  }
+};
+
+export const registerMover = async (formData: FormData): Promise<any> => {
+  const response = await fetch(`${API_BASE_URL}/api/become-mover`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  const responseBody = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseBody.message);
   }
 };
 

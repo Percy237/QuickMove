@@ -20,12 +20,15 @@ import { SignInFormData } from "@/constants/types";
 import { useForm, Controller } from "react-hook-form";
 const signInImage = require("../../assets/images/people-carrying-delivering-big-box-delivery-workers-working-warehouse-men-with-goods-carton-packaging-hands-two-guys-with-load.png");
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ToastManager, { Toast } from "toastify-react-native";
 import { login } from "@/api-client";
+import * as SecureStore from "expo-secure-store";
+import { useToast } from "react-native-toast-notifications";
 
 const SignInScreen = () => {
   const colorScheme = useColorScheme() || "light"; // Default to "light" if colorScheme is null or undefined
   const router = useRouter();
+  const toast = useToast();
+  const queryClient = useQueryClient();
   const {
     control,
     handleSubmit,
@@ -35,14 +38,42 @@ const SignInScreen = () => {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: async () => {
-      //invalidate credentials
-      Toast.success("Login Successful");
-      router.push("/(user)");
+    onSuccess: async (data: {
+      token: string;
+      role: "customer" | "mover" | "admin";
+    }) => {
+      await queryClient.invalidateQueries({ queryKey: ["validateToken"] });
+      const role = await SecureStore.getItemAsync("role");
+      toast.show("Sign in successful", {
+        type: "success",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
+      setTimeout(() => {
+        switch (role) {
+          case "customer":
+            router.push("/(user)");
+            break;
+          case "mover":
+            router.push("/(mover)");
+            break;
+          case "admin":
+            router.push("/(admin)");
+            break;
+          default:
+            router.push("/sign-in"); // Fallback
+        }
+      }, 3000);
     },
     onError: (error: Error) => {
-      Toast.error("Invalid credentials", "top");
       console.log(error.message);
+      toast.show(`${error.message}`, {
+        type: "danger",
+        placement: "top",
+        duration: 4000,
+        animationType: "slide-in",
+      });
     },
   });
 
@@ -78,7 +109,6 @@ const SignInScreen = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <ToastManager />
         <Animated.View
           style={[
             styles.container,

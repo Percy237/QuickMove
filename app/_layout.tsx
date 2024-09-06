@@ -12,7 +12,9 @@ import "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { AuthProvider } from "@/provider/AuthProvider";
+import { AuthContextProvider } from "@/context/AuthProvider";
+import { ToastProvider } from "react-native-toast-notifications";
+import { FormProvider } from "@/context/FormContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -65,13 +67,28 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Stack>
-            <Stack.Screen name="(user)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          </Stack>
-        </AuthProvider>
+        <AuthContextProvider>
+          <FormProvider>
+            <ToastProvider offsetTop={50}>
+              <Stack>
+                <Stack.Screen name="(user)" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="(becomeMover)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="(onboarding)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="modal"
+                  options={{ presentation: "modal" }}
+                />
+              </Stack>
+            </ToastProvider>
+          </FormProvider>
+        </AuthContextProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
