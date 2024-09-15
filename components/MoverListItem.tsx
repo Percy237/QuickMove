@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
-  moversList: {
+  moverList: {
     paddingBottom: 16,
   },
   moverContainer: {

@@ -23,6 +23,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "@/api-client";
 import * as SecureStore from "expo-secure-store";
 import { useToast } from "react-native-toast-notifications";
+import Spinner from "@/components/Spinner";
 
 const SignInScreen = () => {
   const colorScheme = useColorScheme() || "light"; // Default to "light" if colorScheme is null or undefined
@@ -34,7 +35,12 @@ const SignInScreen = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<SignInFormData>();
+  } = useForm<SignInFormData>({
+    defaultValues: {
+      email: "test@example.com",
+      password: "securepassword",
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: login,
@@ -47,7 +53,7 @@ const SignInScreen = () => {
       toast.show("Sign in successful", {
         type: "success",
         placement: "top",
-        duration: 3000,
+        duration: 1000,
         animationType: "slide-in",
       });
       setTimeout(() => {
@@ -64,7 +70,7 @@ const SignInScreen = () => {
           default:
             router.push("/sign-in"); // Fallback
         }
-      }, 3000);
+      }, 1000);
     },
     onError: (error: Error) => {
       console.log(error.message);
@@ -192,12 +198,16 @@ const SignInScreen = () => {
             <Text style={styles.errorText}>{errors.password.message}</Text>
           )}
 
-          <Button
-            title="Submit"
-            disabled={mutation.isPending}
-            onPress={handleSubmit(onSubmit)}
-            color={Colors[colorScheme].tint}
-          />
+          {mutation.isPending ? (
+            <Spinner />
+          ) : (
+            <Button
+              title="Submit"
+              disabled={mutation.isPending}
+              onPress={handleSubmit(onSubmit)}
+              color={Colors[colorScheme].tint}
+            />
+          )}
 
           <Text
             style={[styles.signUpPrompt, { color: Colors[colorScheme].text }]}

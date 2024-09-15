@@ -15,10 +15,12 @@ import { DocumentData, MoverFormData } from "@/constants/types";
 import { useMutation } from "@tanstack/react-query";
 import { registerMover } from "@/api-client";
 import { useToast } from "react-native-toast-notifications";
-import Loader from "@/components/Loader";
+import { useAuthContext } from "@/context/AuthProvider";
+import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
 
 export default function Summary() {
   const colorScheme = useColorScheme() || "light";
+  const { handlePrev } = useBecomeMoverProgressBar();
   const toast = useToast();
   const router = useRouter();
   const { formData } = useFormContext();
@@ -46,6 +48,7 @@ export default function Summary() {
         }
       }
     });
+
     console.log(formData);
     return formData;
   };
@@ -141,7 +144,10 @@ export default function Summary() {
             styles.button,
             { backgroundColor: Colors[colorScheme].buttonPrimary },
           ]}
-          onPress={() => router.back()}
+          onPress={() => {
+            router.back();
+            handlePrev();
+          }}
         >
           <Text
             style={[

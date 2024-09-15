@@ -23,6 +23,7 @@ import { ImageData } from "@/constants/types";
 
 import { CheckBox } from "react-native-elements";
 import { useFormContext } from "@/context/FormContext";
+import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
 
 const defaultUploadImage =
   "https://th.bing.com/th/id/OIP.9gVPpQsQKxwDqOAou_KYQQAAAA?w=275&h=183&rs=1&pid=ImgDetMain";
@@ -31,10 +32,10 @@ export default function Step1() {
   const colorScheme = useColorScheme() || "light";
   const { formData, setFormData } = useFormContext();
   const router = useRouter();
+  const { handleNext } = useBecomeMoverProgressBar();
   const {
     control,
     handleSubmit,
-
     formState: { errors },
   } = useForm<MoverFormData>({
     defaultValues: {
@@ -49,6 +50,7 @@ export default function Step1() {
 
   const onSubmit = (data: MoverFormData) => {
     setFormData(data);
+    handleNext();
     router.push("/step2");
   };
   // Animation values
@@ -121,7 +123,7 @@ export default function Step1() {
         { backgroundColor: Colors[colorScheme].background },
       ]}
     >
-      <ProgressBar step={1} totalSteps={3} />
+      <ProgressBar />
       <Text style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}>
         Business Information
       </Text>

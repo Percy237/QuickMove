@@ -23,6 +23,7 @@ import Colors from "@/constants/Colors";
 import { useFormContext } from "@/context/FormContext";
 import { ImageData } from "@/constants/types";
 import { DocumentData } from "@/constants/types";
+import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
 
 const defaultUploadImage =
   "https://th.bing.com/th/id/OIP.9gVPpQsQKxwDqOAou_KYQQAAAA?w=275&h=183&rs=1&pid=ImgDetMain";
@@ -30,6 +31,7 @@ const defaultUploadImage =
 export default function Step2() {
   const colorScheme = useColorScheme() || "light";
   const { formData, setFormData } = useFormContext();
+
   const {
     control,
     handleSubmit,
@@ -54,6 +56,8 @@ export default function Step2() {
     },
   });
   const router = useRouter();
+
+  const { handlePrev, handleNext } = useBecomeMoverProgressBar();
 
   //handle upload document
   const handleDocumentUpload = async (
@@ -147,12 +151,13 @@ export default function Step2() {
   };
   const onSubmit = (data: MoverFormData) => {
     setFormData(data);
+    handleNext();
     router.push("/step3");
   };
 
   return (
     <View style={styles.container}>
-      <ProgressBar step={2} totalSteps={3} />
+      <ProgressBar />
       <Text style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}>
         Identification Documents
       </Text>
@@ -276,7 +281,10 @@ export default function Step2() {
             styles.button,
             { backgroundColor: Colors[colorScheme].buttonPrimary },
           ]}
-          onPress={() => router.back()}
+          onPress={() => {
+            router.back();
+            handlePrev();
+          }}
         >
           <Text
             style={[

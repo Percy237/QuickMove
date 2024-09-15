@@ -12,10 +12,11 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { movers } from "@/assets/data/movers";
 
 import MoverListItem from "@/components/MoverListItem";
-import { useAuth } from "@/context/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
+import { getAllMovers } from "@/api-client";
+import Spinner from "@/components/Spinner";
 
 export default function CustomerHomeScreen() {
   const colorScheme = useColorScheme() || "light";
@@ -24,6 +25,16 @@ export default function CustomerHomeScreen() {
     router.push("/(becomeMover)/step");
   };
 
+  const {
+    data: movers,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["allMovers"],
+    queryFn: getAllMovers,
+  });
+
   return (
     <View
       style={[
@@ -31,6 +42,9 @@ export default function CustomerHomeScreen() {
         { backgroundColor: Colors[colorScheme].background },
       ]}
     >
+      {/* <View style={styles.banner}>
+        <Text style={styles.bannerText}>Your Move, Simplified.</Text>
+      </View> */}
       <View
         style={[
           styles.promptContainer,
@@ -42,12 +56,16 @@ export default function CustomerHomeScreen() {
         </Text>
         <Button title="Become a Mover" onPress={handleBecomeMover} />
       </View>
-
-      <FlatList
-        data={movers}
-        renderItem={({ item }) => <MoverListItem mover={item} />}
-        contentContainerStyle={styles.moversList}
-      />
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <FlatList
+          data={movers}
+          renderItem={({ item }) => <MoverListItem mover={item} />}
+          contentContainerStyle={styles.moversList}
+        />
+      )}
+      {isError && <Text>{error.message}</Text>}
     </View>
   );
 }
@@ -57,6 +75,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  // banner: {
+  //   backgroundColor: "#f8f8f8",
+  //   padding: 16,
+  //   marginBottom: 16,
+  //   alignItems: "center",
+  // },
+  // bannerText: {
+  //   fontSize: 24,
+  //   fontWeight: "bold",
+  // },
   promptContainer: {
     padding: 16,
     borderRadius: 8,

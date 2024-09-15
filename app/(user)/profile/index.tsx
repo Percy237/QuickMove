@@ -4,16 +4,18 @@ import { Avatar, Card, Title, Paragraph } from "react-native-paper";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "react-native";
 import { logout } from "@/api-client";
+import { useAuthContext } from "@/context/AuthProvider";
+import { useRouter } from "expo-router";
 
 const index = () => {
+  const { user } = useAuthContext();
+  const router = useRouter();
+  console.log(user);
   const colorScheme = useColorScheme() || "light";
-  const user = {
-    email: "test1@example.com",
-    password: "$2a$08$9WtvlbxCp8BfxO25mfAyhOMrJ6oOrKVV2PhY26MNUI9q8/oVOU4c6",
-    firstName: "John",
-    lastName: "Doe",
-    phoneNumber: "+1234567890",
-    address: "123 Main St",
+
+  const handleLogout = () => {
+    () => logout;
+    router.push("/(onboarding)");
   };
   return (
     <View
@@ -28,7 +30,7 @@ const index = () => {
           source={{ uri: "https://via.placeholder.com/100" }}
         />
         <Text style={[styles.name, { color: Colors[colorScheme].text }]}>
-          {user.firstName} {user.lastName}
+          {user?.firstName} {user?.lastName}
         </Text>
       </View>
       <Card
@@ -46,20 +48,20 @@ const index = () => {
           <Paragraph
             style={[styles.detail, { color: Colors[colorScheme].text }]}
           >
-            Email: {user.email}
+            Email: {user?.email}
           </Paragraph>
           <Paragraph
             style={[styles.detail, { color: Colors[colorScheme].text }]}
           >
-            Phone: {user.phoneNumber}
+            Phone: {user?.phoneNumber}
           </Paragraph>
           <Paragraph
             style={[styles.detail, { color: Colors[colorScheme].text }]}
           >
-            Address: {user.address}
+            Address: {user?.address}
           </Paragraph>
         </Card.Content>
-        <Text style={{ color: "white" }} onPress={logout}>
+        <Text style={{ color: "white" }} onPress={handleLogout}>
           Logout
         </Text>
       </Card>

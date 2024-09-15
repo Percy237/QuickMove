@@ -7,6 +7,17 @@ export type SignUpFormData = {
   address: string;
 };
 
+export type UserType = {
+  _id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  role: "customer" | "mover" | "admin";
+};
+
 export type SignInFormData = {
   email: string;
   password: string;

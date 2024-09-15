@@ -39,12 +39,17 @@ export const login = async (formData: SignInFormData): Promise<any> => {
     return true;
   } else {
     const error = await response.json();
+
     throw new Error(error.message);
   }
 };
 
 export const registerMover = async (formData: FormData): Promise<any> => {
+  const token = await SecureStore.getItemAsync("jwt_token");
   const response = await fetch(`${API_BASE_URL}/api/become-mover`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     method: "POST",
     credentials: "include",
     body: formData,
@@ -53,27 +58,6 @@ export const registerMover = async (formData: FormData): Promise<any> => {
 
   if (!response.ok) {
     throw new Error(responseBody.message);
-  }
-};
-
-export const fetchData = async () => {
-  const token = await SecureStore.getItemAsync("jwt_token");
-
-  const response = await fetch(
-    "http://your-ip-address:8000/api/protected-route",
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (response.ok) {
-    const data = await response.json();
-    return data;
-  } else {
-    throw new Error("Failed to fetch data");
   }
 };
 
@@ -100,4 +84,49 @@ export const validateToken = async () => {
 export const logout = async () => {
   await SecureStore.deleteItemAsync("jwt_token");
   console.log("Token deleted successfully");
+};
+
+export const getAllMovers = async () => {
+  const response = await fetch(`${API_BASE_URL}/api/movers`, {
+    method: "GET",
+  });
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch movers");
+  }
+};
+
+export const getMover = async (id: string): Promise<any> => {
+  const response = await fetch(`${API_BASE_URL}/api/mover/${id}`, {
+    method: "GET",
+  });
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch mover");
+  }
+};
+
+export const fetchData = async () => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+
+  const response = await fetch(
+    "http://your-ip-address:8000/api/protected-route",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch data");
+  }
 };

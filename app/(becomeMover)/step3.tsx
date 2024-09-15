@@ -21,10 +21,12 @@ import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/Colors";
 import { useFormContext } from "@/context/FormContext";
+import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
 
 export default function Step3() {
   const colorScheme = useColorScheme() || "light";
   const { formData, setFormData } = useFormContext();
+  const { handleNext, handlePrev } = useBecomeMoverProgressBar();
   const {
     control,
     handleSubmit,
@@ -96,12 +98,13 @@ export default function Step3() {
   };
   const onSubmit = (data: MoverFormData) => {
     setFormData(data);
+    handleNext();
     router.push("/summary");
   };
 
   return (
     <View style={styles.container}>
-      <ProgressBar step={3} totalSteps={3} />
+      <ProgressBar />
       <Text style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}>
         Identification Documents
       </Text>
@@ -158,7 +161,10 @@ export default function Step3() {
             styles.button,
             { backgroundColor: Colors[colorScheme].buttonPrimary },
           ]}
-          onPress={() => router.back()}
+          onPress={() => {
+            router.back();
+            handlePrev();
+          }}
         >
           <Text
             style={[

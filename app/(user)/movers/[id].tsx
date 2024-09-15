@@ -8,22 +8,72 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { movers } from "@/assets/data/movers";
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { defaultMoverImage } from "@/components/MoverListItem";
+import { useQuery } from "@tanstack/react-query";
+import { getMover } from "@/api-client";
+import Spinner from "@/components/Spinner";
+import { err } from "react-native-svg";
 
 const MoverDetailScreen = () => {
   const colorScheme = useColorScheme() || "light";
   const { id } = useLocalSearchParams();
   console.log(id);
-  const mover = movers.find((m) => m._id === id);
+
+  const {
+    data: mover,
+    error,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["mover", id],
+    queryFn: () => getMover(id as string),
+    enabled: !!id,
+  });
+
+  if (isLoading)
+    return (
+      <View
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "50%",
+        }}
+      >
+        <Spinner />
+      </View>
+    );
+
+  if (isError)
+    return (
+      <View
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "50%",
+        }}
+      >
+        <Text>{error.message}</Text>
+      </View>
+    );
+
   if (!mover) {
     return (
       <Text style={{ color: Colors[colorScheme].text }}>Mover not found</Text>
     );
   }
+  const handleBookMover = (_id: string) => {
+    router.push({
+      pathname: "/(bookingMove)/how",
+      params: { moverId: _id },
+    });
+  };
+
   return (
     <ScrollView
       style={[
