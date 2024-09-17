@@ -35,13 +35,6 @@
         {
           "locationWhenInUsePermission": "Show current location on map."
         }
-      ],
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsVersion": "11.0.0",
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTJzaHYzNjBmZGEya29qeDA2cXU0ZTMifQ.nmq2TlIBtBcw8ocfBoTc7w"
-        }
       ]
     ],
     "experiments": {

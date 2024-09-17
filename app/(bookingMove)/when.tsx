@@ -11,11 +11,7 @@ import { useRouter } from "expo-router";
 import { useBookMoveProgressBar } from "@/context/BookMoveProgressBar";
 import { useForm } from "react-hook-form";
 import BookMoveProgressBar from "@/components/BookMoveProgressBar";
-import Mapbox from "@rnmapbox/maps";
-
-const mapAccessToken = process.env.EXPO_PUBLIC_MAP_ACCESS_TOKEN || "";
-
-Mapbox.setAccessToken(mapAccessToken);
+import MapBoxSearchBox from "@/components/MapBoxSearchBox";
 
 const when = () => {
   const router = useRouter();
@@ -27,11 +23,10 @@ const when = () => {
     handleNext();
   };
   return (
-    <View style={styles.page}>
-      <View style={styles.container}>
-        <Mapbox.MapView style={styles.map} />
-      </View>
-      {/* <BookMoveProgressBar />
+    <View style={[{ backgroundColor: Colors[colorScheme].background }]}>
+      <BookMoveProgressBar />
+
+      <MapBoxSearchBox />
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -69,7 +64,7 @@ const when = () => {
             Next
           </Text>
         </TouchableOpacity>
-      </View> */}
+      </View>
     </View>
   );
 };
@@ -101,17 +96,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  page: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    height: 300,
-    width: 300,
-  },
-  map: {
-    flex: 1,
   },
 });

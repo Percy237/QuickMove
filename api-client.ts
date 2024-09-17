@@ -4,6 +4,10 @@ import { SignInFormData } from "./constants/types";
 import { useRouter } from "expo-router";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const MAPBOX_SECRET_ACCESS_TOKEN =
+  process.env.EXPO_PUBLIC_MAPBOX_SECRET_ACCESS_TOKEN;
+const MAPBOX_PUBLIC_ACCESS_TOKEN =
+  process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN;
 
 export const register = async (formData: SignUpFormData): Promise<any> => {
   const response = await fetch(`${API_BASE_URL}/api/users/register`, {
@@ -129,4 +133,45 @@ export const fetchData = async () => {
   } else {
     throw new Error("Failed to fetch data");
   }
+};
+
+// MAP REQUESTS
+export const fetchSearchResults = async (query: string) => {
+  const secretAccessToken = MAPBOX_SECRET_ACCESS_TOKEN;
+  const url = `https://api.mapbox.com/search/searchbox/v1/suggest?q=${encodeURIComponent(
+    query
+  )}&language=en&country=cm&session_token=0d125fa5-69e1-47d1-891f-58c247201762&access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data.suggestions;
+  } catch (error) {
+    console.error("Error fetching search results: ", error);
+  }
+};
+
+export const fetchAddressDetails = async (mapboxId: string) => {
+  const url = `https://api.mapbox.com/search/searchbox/v1/retrieve/${mapboxId}?session_token=0d125fa5-69e1-47d1-891f-58c247201762&access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data.features;
+  } catch (error) {
+    console.error("Error fetching search results: ", error);
+  }
+};
+
+export const fetchStaticMap = async (lon: string, lat: string) => {
+  const url = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+555555(${lon},${lat})/${lon},${lat},9.11,0/300x200@2x?access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
+
+  return url;
+};
+
+export const fetchDefaultStaticMap = async (lon: number, lat: number) => {
+  const url = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+555555(${lon},${lat})/${lon},${lat},9.11,0/300x200@2x?access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
+
+  return url;
 };
