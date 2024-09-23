@@ -16,7 +16,7 @@ export const BecomeMoverProgressBarContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [currentActive, setCurrentActive] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const handleNext = () => {
     setCurrentActive((prev) => (prev < totalSteps ? prev + 1 : prev));

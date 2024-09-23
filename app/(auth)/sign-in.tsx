@@ -37,7 +37,7 @@ const SignInScreen = () => {
     formState: { errors },
   } = useForm<SignInFormData>({
     defaultValues: {
-      email: "test@example.com",
+      email: "percylarson17@gmail.com",
       password: "securepassword",
     },
   });

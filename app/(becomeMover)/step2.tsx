@@ -1,4 +1,3 @@
-// app/step2.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -13,99 +12,24 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { CheckBox } from "react-native-elements";
 import { useForm, Controller } from "react-hook-form";
-import { useRouter } from "expo-router";
-import ProgressBar from "@/components/ProgressBar";
-import { MoverFormData } from "@/constants/types";
-import * as DocumentPicker from "expo-document-picker";
-import * as ImagePicker from "expo-image-picker";
-import Colors from "@/constants/Colors";
 import { useFormContext } from "@/context/FormContext";
+import { MoverFormData, Services } from "@/constants/types";
+import * as ImagePicker from "expo-image-picker";
 import { ImageData } from "@/constants/types";
-import { DocumentData } from "@/constants/types";
+import Colors from "@/constants/Colors";
+import ProgressBar from "@/components/ProgressBar";
 import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
-
+import { useRouter } from "expo-router";
 const defaultUploadImage =
   "https://th.bing.com/th/id/OIP.9gVPpQsQKxwDqOAou_KYQQAAAA?w=275&h=183&rs=1&pid=ImgDetMain";
 
-export default function Step2() {
+const step3 = () => {
   const colorScheme = useColorScheme() || "light";
   const { formData, setFormData } = useFormContext();
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<MoverFormData>({
-    defaultValues: {
-      businessRegistrationDocument: formData.businessRegistrationDocument || {
-        uri: "",
-        name: "",
-        type: "",
-      },
-      governmentIssuedIdFront: formData.governmentIssuedIdFront || {
-        uri: "",
-        name: "",
-        type: "",
-      },
-      governmentIssuedIdBack: formData.governmentIssuedIdBack || {
-        uri: "",
-        name: "",
-        type: "",
-      },
-    },
-  });
+  const { handleNext, handlePrev } = useBecomeMoverProgressBar();
   const router = useRouter();
-
-  const { handlePrev, handleNext } = useBecomeMoverProgressBar();
-
-  //handle upload document
-  const handleDocumentUpload = async (
-    field: keyof MoverFormData,
-    onChange: (data: DocumentData) => void
-  ) => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "application/*",
-        copyToCacheDirectory: true,
-      });
-
-      if (result.assets && result.assets.length > 0) {
-        const file: DocumentData = {
-          uri: result.assets[0].uri,
-          name: result.assets[0].name || "",
-          type: result.assets[0].mimeType || "",
-        };
-
-        onChange(file); // Pass the object to onChange
-      }
-    } catch (error) {
-      console.log("Error while selecting file: ", error);
-    }
-  };
-
-  // handle pick image
-  const pickImage = async (
-    field: keyof MoverFormData,
-    onChange: (data: ImageData) => void
-  ) => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const imageData: ImageData = {
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName ?? undefined,
-        type: result.assets[0].mimeType ?? null,
-      };
-
-      onChange(imageData);
-    }
-  };
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -126,14 +50,28 @@ export default function Step2() {
     }).start();
   }, [fadeAnim, slideAnim]);
 
-  const renderDocumentPreview = (name?: string | undefined | null) => {
-    if (!name) return null;
+  // handle pick image
+  const pickImage = async (
+    field: keyof MoverFormData,
+    onChange: (data: ImageData) => void
+  ) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-    return (
-      <View style={styles.documentPreview}>
-        <Text style={styles.documentName}>{name}</Text>
-      </View>
-    );
+    if (!result.canceled) {
+      const assets = result.assets[0];
+      const imageData: ImageData = {
+        uri: result.assets[0].uri,
+        name: result.assets[0].fileName ?? undefined,
+        type: result.assets[0].mimeType ?? null,
+      };
+
+      onChange(imageData);
+    }
   };
 
   const renderImagePreview = (image: string) => {
@@ -149,177 +87,176 @@ export default function Step2() {
       </View>
     );
   };
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<MoverFormData>({
+    defaultValues: {
+      serviceArea: formData.serviceArea || "",
+      services: Array.isArray(formData.services) ? formData.services : [],
+      companyLogo: formData.companyLogo || { uri: "", name: "", type: "" },
+      description: formData.description || "",
+    },
+  });
+
   const onSubmit = (data: MoverFormData) => {
     setFormData(data);
     handleNext();
     router.push("/step3");
   };
-
   return (
     <View style={styles.container}>
       <ProgressBar />
       <Text style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}>
-        Identification Documents
+        Services & Logo
       </Text>
-      <ScrollView>
-        <Animated.View
-          style={[
-            styles.container,
-            { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
-            { backgroundColor: Colors[colorScheme].background },
-          ]}
-        >
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Business Registration Document
-          </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Description
+        </Text>
+        <Controller
+          control={control}
+          name="description"
+          rules={{ required: "Description is required" }}
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderBottomWidth: 1,
+                  marginBottom: 20,
+                  height: 100,
+                  textAlignVertical: "top",
+                  color: Colors[colorScheme].text,
+                  backgroundColor: Colors[colorScheme].background,
+                  borderColor: Colors[colorScheme].border,
+                },
+              ]}
+              placeholder="Description"
+              onChangeText={onChange}
+              value={value}
+              multiline={true}
+            />
+          )}
+        />
+        {errors.description && (
+          <Text style={styles.errorText}>{errors.description.message}</Text>
+        )}
 
-          <Controller
-            control={control}
-            rules={{ required: "Business registration document is required" }}
-            name="businessRegistrationDocument"
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderDocumentPreview(value.name)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() =>
-                    handleDocumentUpload(
-                      "businessRegistrationDocument",
-                      onChange
-                    )
-                  }
-                >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Document Uploaded" : "Upload Document"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.businessRegistrationDocument && (
-            <Text style={styles.errorText}>
-              {errors.businessRegistrationDocument.message}
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Services
+        </Text>
+        <View>
+          {Services.map((service) => (
+            <Controller
+              key={service}
+              control={control}
+              name="services"
+              render={({ field: { value = [], onChange } }) => (
+                <CheckBox
+                  title={service}
+                  checked={value.includes(service)}
+                  onPress={() => {
+                    const newValue = value.includes(service)
+                      ? value.filter((item) => item !== service)
+                      : [...value, service];
+                    onChange(newValue);
+                  }}
+                />
+              )}
+            />
+          ))}
+          {errors.services && (
+            <Text style={{ color: "red" }}>
+              Please select at least one service.
             </Text>
           )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Government Issued Id (Front)
-          </Text>
+        </View>
 
-          <Controller
-            control={control}
-            name="governmentIssuedIdFront"
-            rules={{ required: "Government Issued Id (Front) is required" }}
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderImagePreview(value.uri)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() => pickImage("governmentIssuedIdFront", onChange)}
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Company Logo
+        </Text>
+        <Controller
+          control={control}
+          rules={{ required: "Company Logo is required" }}
+          name="companyLogo"
+          render={({ field: { onChange, value } }) => (
+            <>
+              {renderImagePreview(value.uri)}
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: Colors[colorScheme].buttonPrimary },
+                ]}
+                onPress={() => pickImage("companyLogo", onChange)}
+              >
+                <Text
+                  style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
                 >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Image Uploaded" : "Upload Image"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.governmentIssuedIdFront && (
-            <Text style={styles.errorText}>
-              {errors.governmentIssuedIdFront.message}
-            </Text>
+                  {value ? "Image Uploaded" : "Upload Image"}
+                </Text>
+              </TouchableOpacity>
+            </>
           )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Government Issued Id (Back)
-          </Text>
-
-          <Controller
-            control={control}
-            name="governmentIssuedIdBack"
-            rules={{
-              required: "Government Issued Id (Back) document is required",
+        />
+        {errors.companyLogo && (
+          <Text style={styles.errorText}>{errors.companyLogo.message}</Text>
+        )}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: Colors[colorScheme].buttonPrimary },
+            ]}
+            onPress={() => {
+              router.back();
+              handlePrev();
             }}
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderImagePreview(value.uri)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() => pickImage("governmentIssuedIdBack", onChange)}
-                >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Image Uploaded" : "Upload Image"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.governmentIssuedIdBack && (
-            <Text style={styles.errorText}>
-              {errors.governmentIssuedIdBack.message}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                { color: Colors[colorScheme].buttonTextPrimary },
+              ]}
+            >
+              Previous
             </Text>
-          )}
-        </Animated.View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: Colors[colorScheme].buttonPrimary },
+            ]}
+            onPress={handleSubmit(onSubmit)}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                { color: Colors[colorScheme].buttonTextPrimary },
+              ]}
+            >
+              Next
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: Colors[colorScheme].buttonPrimary },
-          ]}
-          onPress={() => {
-            router.back();
-            handlePrev();
-          }}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              { color: Colors[colorScheme].buttonTextPrimary },
-            ]}
-          >
-            Previous
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: Colors[colorScheme].buttonPrimary },
-          ]}
-          onPress={handleSubmit(onSubmit)}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              { color: Colors[colorScheme].buttonTextPrimary },
-            ]}
-          >
-            Next
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
-}
+};
+
+export default step3;
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
     flex: 1,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
@@ -331,13 +268,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#333",
   },
   textButton: {
     alignSelf: "center",
@@ -353,41 +283,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  documentSection: {
-    marginTop: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: "#ccc",
-    backgroundColor: "#f9f9f9",
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    marginBottom: 20,
-  },
-  signUpPrompt: {
-    alignSelf: "center",
-    marginTop: 20,
-    fontSize: 16,
-  },
   errorText: {
     color: "red",
     marginBottom: 10,
-  },
-  documentPreview: {
-    marginVertical: 10,
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#f2f2f2",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: 80,
-  },
-  documentName: {
-    color: "#333",
   },
   button: {
     borderRadius: 5,
@@ -401,9 +299,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#333",
+  },
   buttonContainer: {
     marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  documentPreview: {
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#f2f2f2",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 80,
   },
 });

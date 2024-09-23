@@ -16,39 +16,25 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
 import ProgressBar from "@/components/ProgressBar";
-import { MoverFormData } from "@/constants/types";
+import { DocumentData, MoverFormData } from "@/constants/types";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/Colors";
 import { useFormContext } from "@/context/FormContext";
-import { ImageData } from "@/constants/types";
-import { DocumentData } from "@/constants/types";
 import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
 
-const defaultUploadImage =
-  "https://th.bing.com/th/id/OIP.9gVPpQsQKxwDqOAou_KYQQAAAA?w=275&h=183&rs=1&pid=ImgDetMain";
-
-export default function Step2() {
+export default function Step3() {
   const colorScheme = useColorScheme() || "light";
   const { formData, setFormData } = useFormContext();
-
+  const { handleNext, handlePrev } = useBecomeMoverProgressBar();
   const {
     control,
     handleSubmit,
+
     formState: { errors },
   } = useForm<MoverFormData>({
     defaultValues: {
-      businessRegistrationDocument: formData.businessRegistrationDocument || {
-        uri: "",
-        name: "",
-        type: "",
-      },
-      governmentIssuedIdFront: formData.governmentIssuedIdFront || {
-        uri: "",
-        name: "",
-        type: "",
-      },
-      governmentIssuedIdBack: formData.governmentIssuedIdBack || {
+      insuranceDocument: formData.insuranceDocument || {
         uri: "",
         name: "",
         type: "",
@@ -56,8 +42,6 @@ export default function Step2() {
     },
   });
   const router = useRouter();
-
-  const { handlePrev, handleNext } = useBecomeMoverProgressBar();
 
   //handle upload document
   const handleDocumentUpload = async (
@@ -81,29 +65,6 @@ export default function Step2() {
       }
     } catch (error) {
       console.log("Error while selecting file: ", error);
-    }
-  };
-
-  // handle pick image
-  const pickImage = async (
-    field: keyof MoverFormData,
-    onChange: (data: ImageData) => void
-  ) => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const imageData: ImageData = {
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName ?? undefined,
-        type: result.assets[0].mimeType ?? null,
-      };
-
-      onChange(imageData);
     }
   };
 
@@ -135,24 +96,10 @@ export default function Step2() {
       </View>
     );
   };
-
-  const renderImagePreview = (image: string) => {
-    if (!image)
-      return (
-        <View style={styles.documentPreview}>
-          <Image source={{ uri: defaultUploadImage }} style={styles.image} />
-        </View>
-      );
-    return (
-      <View style={styles.documentPreview}>
-        <Image source={{ uri: image }} style={styles.image} />
-      </View>
-    );
-  };
   const onSubmit = (data: MoverFormData) => {
     setFormData(data);
     handleNext();
-    router.push("/step4");
+    router.push("/summary");
   };
 
   return (
@@ -170,26 +117,25 @@ export default function Step2() {
           ]}
         >
           <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Business Registration Document
+            Insurance Document
           </Text>
 
           <Controller
             control={control}
-            rules={{ required: "Business registration document is required" }}
-            name="businessRegistrationDocument"
+            name="insuranceDocument"
+            rules={{
+              required: " Insurance document is required",
+            }}
             render={({ field: { onChange, value } }) => (
               <>
-                {renderDocumentPreview(value.name)}
+                {renderDocumentPreview(value?.name)}
                 <TouchableOpacity
                   style={[
                     styles.button,
                     { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
                   ]}
                   onPress={() =>
-                    handleDocumentUpload(
-                      "businessRegistrationDocument",
-                      onChange
-                    )
+                    handleDocumentUpload("insuranceDocument", onChange)
                   }
                 >
                   <Text
@@ -201,75 +147,9 @@ export default function Step2() {
               </>
             )}
           />
-          {errors.businessRegistrationDocument && (
+          {errors.insuranceDocument && (
             <Text style={styles.errorText}>
-              {errors.businessRegistrationDocument.message}
-            </Text>
-          )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Government Issued Id (Front)
-          </Text>
-
-          <Controller
-            control={control}
-            name="governmentIssuedIdFront"
-            rules={{ required: "Government Issued Id (Front) is required" }}
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderImagePreview(value.uri)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() => pickImage("governmentIssuedIdFront", onChange)}
-                >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Image Uploaded" : "Upload Image"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.governmentIssuedIdFront && (
-            <Text style={styles.errorText}>
-              {errors.governmentIssuedIdFront.message}
-            </Text>
-          )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Government Issued Id (Back)
-          </Text>
-
-          <Controller
-            control={control}
-            name="governmentIssuedIdBack"
-            rules={{
-              required: "Government Issued Id (Back) document is required",
-            }}
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderImagePreview(value.uri)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() => pickImage("governmentIssuedIdBack", onChange)}
-                >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Image Uploaded" : "Upload Image"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.governmentIssuedIdBack && (
-            <Text style={styles.errorText}>
-              {errors.governmentIssuedIdBack.message}
+              {errors.insuranceDocument.message}
             </Text>
           )}
         </Animated.View>

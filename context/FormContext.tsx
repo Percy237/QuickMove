@@ -29,6 +29,8 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
     governmentIssuedIdFront: { uri: "", name: "", type: "" },
     governmentIssuedIdBack: { uri: "", name: "", type: "" },
     insuranceDocument: { uri: "", name: "", type: "" },
+    latitude: 0,
+    longitude: 0,
   };
   const [formData, setFormDataState] = useState<MoverFormData>(defaultFormData);
 

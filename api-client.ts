@@ -175,3 +175,4 @@ export const fetchDefaultStaticMap = async (lon: number, lat: number) => {
 
   return url;
 };
+

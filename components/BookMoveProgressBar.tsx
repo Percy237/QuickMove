@@ -6,7 +6,7 @@ import Colors from "@/constants/Colors";
 const BookMoveProgressBar = () => {
   const colorScheme = useColorScheme() || "light";
   const { currentActive, handleNext, handlePrev } = useBookMoveProgressBar();
-  const totalSteps = 3;
+  const totalSteps = 4;
   return (
     <View>
       <View style={styles.container}>

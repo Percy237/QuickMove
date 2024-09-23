@@ -24,6 +24,7 @@ import { ImageData } from "@/constants/types";
 import { CheckBox } from "react-native-elements";
 import { useFormContext } from "@/context/FormContext";
 import { useBecomeMoverProgressBar } from "@/context/BecomeMoverProgressBar";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const defaultUploadImage =
   "https://th.bing.com/th/id/OIP.9gVPpQsQKxwDqOAou_KYQQAAAA?w=275&h=183&rs=1&pid=ImgDetMain";
@@ -33,6 +34,8 @@ export default function Step1() {
   const { formData, setFormData } = useFormContext();
   const router = useRouter();
   const { handleNext } = useBecomeMoverProgressBar();
+  const [longitude, setLongitude] = useState<number>();
+  const [latitude, setLatitude] = useState<number>();
   const {
     control,
     handleSubmit,
@@ -45,11 +48,13 @@ export default function Step1() {
       services: Array.isArray(formData.services) ? formData.services : [],
       companyLogo: formData.companyLogo || { uri: "", name: "", type: "" },
       description: formData.description || "",
+      longitude: formData.latitude || 0,
+      latitude: formData.latitude || 0,
     },
   });
 
   const onSubmit = (data: MoverFormData) => {
-    setFormData(data);
+    setFormData({ ...data, longitude, latitude });
     handleNext();
     router.push("/step2");
   };
@@ -76,46 +81,6 @@ export default function Step1() {
     Record<string, { uri: string; name: string }>
   >({});
 
-  // handle pick image
-  const pickImage = async (
-    field: keyof MoverFormData,
-    onChange: (data: ImageData) => void
-  ) => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result.assets);
-
-    if (!result.canceled) {
-      const assets = result.assets[0];
-      const imageData: ImageData = {
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName ?? undefined,
-        type: result.assets[0].mimeType ?? null,
-      };
-
-      onChange(imageData);
-    }
-  };
-
-  const renderImagePreview = (image: string) => {
-    if (!image)
-      return (
-        <View style={styles.documentPreview}>
-          <Image source={{ uri: defaultUploadImage }} style={styles.image} />
-        </View>
-      );
-    return (
-      <View style={styles.documentPreview}>
-        <Image source={{ uri: image }} style={styles.image} />
-      </View>
-    );
-  };
-
   return (
     <View
       style={[
@@ -127,193 +92,127 @@ export default function Step1() {
       <Text style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}>
         Business Information
       </Text>
-      <ScrollView>
-        <Animated.View
-          style={[
-            styles.container,
-            { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
-            { backgroundColor: Colors[colorScheme].background },
-          ]}
-        >
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Business Name
-          </Text>
-          <Controller
-            control={control}
-            rules={{ required: "Business name is required" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Enter your business name"
-                style={[
-                  styles.input,
-                  {
-                    color: Colors[colorScheme].text,
-                    backgroundColor: Colors[colorScheme].background,
-                    borderColor: Colors[colorScheme].border,
-                  },
-                ]}
-                placeholderTextColor={Colors[colorScheme].text}
-              />
-            )}
-            name="businessName"
-          />
-          {errors.businessName && (
-            <Text style={styles.errorText}>{errors.businessName.message}</Text>
-          )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Service Area
-          </Text>
-          <Controller
-            control={control}
-            rules={{ required: "Enter your service area" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Enter your service area"
-                style={[
-                  styles.input,
-                  {
-                    color: Colors[colorScheme].text,
-                    backgroundColor: Colors[colorScheme].background,
-                    borderColor: Colors[colorScheme].border,
-                  },
-                ]}
-                placeholderTextColor={Colors[colorScheme].text}
-              />
-            )}
-            name="serviceArea"
-          />
-          {errors.businessName && (
-            <Text style={styles.errorText}>{errors.businessName.message}</Text>
-          )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Business Address
-          </Text>
-          <Controller
-            control={control}
-            rules={{ required: "Business address is required" }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Enter your business address"
-                style={[
-                  styles.input,
-                  {
-                    color: Colors[colorScheme].text,
-                    backgroundColor: Colors[colorScheme].background,
-                    borderColor: Colors[colorScheme].border,
-                  },
-                ]}
-                placeholderTextColor={Colors[colorScheme].text}
-              />
-            )}
-            name="businessAddress"
-          />
-          {errors.businessAddress && (
-            <Text style={styles.errorText}>
-              {errors.businessAddress.message}
-            </Text>
-          )}
 
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Description
-          </Text>
-
-          <Controller
-            control={control}
-            name="description"
-            rules={{ required: "Description is required" }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    borderBottomWidth: 1,
-                    marginBottom: 20,
-                    height: 100, // Set a height for the text area
-                    textAlignVertical: "top", // Align text to the top of the text area
-                    color: Colors[colorScheme].text,
-                    backgroundColor: Colors[colorScheme].background,
-                    borderColor: Colors[colorScheme].border,
-                  },
-                ]}
-                placeholder="Description"
-                onChangeText={onChange}
-                value={value}
-                multiline={true} // Allows the TextInput to behave as a text area
-              />
-            )}
-          />
-          {errors.description && (
-            <Text style={styles.errorText}>{errors.description.message}</Text>
+      <Animated.View
+        style={[
+          { width: "100%", height: "70%" },
+          { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
+          { backgroundColor: Colors[colorScheme].background },
+        ]}
+      >
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Business Name
+        </Text>
+        <Controller
+          control={control}
+          // rules={{ required: "Business name is required" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              placeholder="Enter your business name"
+              style={[
+                styles.input,
+                {
+                  color: Colors[colorScheme].text,
+                  backgroundColor: Colors[colorScheme].background,
+                  borderColor: Colors[colorScheme].border,
+                },
+              ]}
+              placeholderTextColor={Colors[colorScheme].text}
+            />
           )}
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Services
-          </Text>
-          <View>
-            {Services.map((service) => (
-              <Controller
-                key={service}
-                control={control}
-                name="services"
-                render={({ field: { value = [], onChange } }) => (
-                  <CheckBox
-                    title={service}
-                    checked={value.includes(service)}
-                    onPress={() => {
-                      const newValue = value.includes(service)
-                        ? value.filter((item) => item !== service)
-                        : [...value, service];
-                      onChange(newValue);
-                    }}
-                  />
-                )}
-              />
-            ))}
-            {errors.services && (
-              <Text style={{ color: "red" }}>
-                Please select at least one service.
-              </Text>
-            )}
-          </View>
-          <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
-            Company Logo
-          </Text>
-          <Controller
-            control={control}
-            rules={{ required: "Company Logo is required" }}
-            name="companyLogo"
-            render={({ field: { onChange, value } }) => (
-              <>
-                {renderImagePreview(value.uri)}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: Colors[colorScheme].buttonPrimary }, // Optional: Use colorScheme for dynamic colors
-                  ]}
-                  onPress={() => pickImage("companyLogo", onChange)}
-                >
-                  <Text
-                    style={[{ color: Colors[colorScheme].buttonTextPrimary }]}
-                  >
-                    {value ? "Image Uploaded" : "Upload Image"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          />
-          {errors.companyLogo && (
-            <Text style={styles.errorText}>{errors.companyLogo.message}</Text>
+          name="businessName"
+        />
+        {errors.businessName && (
+          <Text style={styles.errorText}>{errors.businessName.message}</Text>
+        )}
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Service Area
+        </Text>
+        <Controller
+          control={control}
+          // rules={{ required: "Enter your service area" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              placeholder="Enter your service area"
+              style={[
+                styles.input,
+                {
+                  color: Colors[colorScheme].text,
+                  backgroundColor: Colors[colorScheme].background,
+                  borderColor: Colors[colorScheme].border,
+                },
+              ]}
+              placeholderTextColor={Colors[colorScheme].text}
+            />
           )}
-        </Animated.View>
-      </ScrollView>
+          name="serviceArea"
+        />
+        {errors.businessName && (
+          <Text style={styles.errorText}>{errors.businessName.message}</Text>
+        )}
+        <Text style={[styles.label, { color: Colors[colorScheme].text }]}>
+          Business Address
+        </Text>
+        <Controller
+          control={control}
+          // rules={{ required: "Business address is required" }}
+          name="businessAddress"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <GooglePlacesAutocomplete
+              placeholder="Business Address"
+              onPress={(data, details = null) => {
+                const selectedAddress = data.description;
+                onChange(selectedAddress);
+                if (details) {
+                  const location = {
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                  };
+                  setLongitude(location.longitude);
+                  setLatitude(location.latitude);
+                }
+              }}
+              query={{
+                key: `${process.env.EXPO_PUBLIC_GOOGLE_CLOUD_API_KEY!}`,
+                language: "en",
+                components: "country:cm",
+              }}
+              styles={{
+                textInputContainer: {
+                  width: "100%",
+                  zIndex: 2, // Ensure it is above the map
+                },
+                textInput: {
+                  height: 38,
+                  color: "#000",
+                  fontSize: 16,
+                },
+                listView: {
+                  zIndex: 3, // Ensure it is above the map
+                },
+                predefinedPlacesDescription: {
+                  color: "#000",
+                },
+              }}
+              textInputProps={{
+                style: [styles.input, { width: "100%" }],
+              }}
+              onFail={(error) => console.log(error)}
+              fetchDetails={true}
+              debounce={200}
+            />
+          )}
+        />
+        {errors.businessAddress && (
+          <Text style={styles.errorText}>{errors.businessAddress.message}</Text>
+        )}
+      </Animated.View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity

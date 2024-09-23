@@ -2,7 +2,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   useColorScheme,
   View,
   Image,
@@ -19,16 +18,19 @@ type MoverListItemProps = {
 };
 
 export const defaultMoverImage =
-  "https:muldersmoving.com/wp-content/uploads/2020/10/filingcabinet-scaled.jpg";
+  "https://muldersmoving.com/wp-content/uploads/2020/10/filingcabinet-scaled.jpg";
 
 const MoverListItem = ({ mover }: MoverListItemProps) => {
   const colorScheme = useColorScheme() || "light";
   const router = useRouter();
   const segments = useSegments();
 
-  console.log(segments);
   return (
-    <Link href={`/${segments[0]}/movers/${mover._id}`} asChild>
+    <Link
+      href={`/${segments[0]}/movers/${mover._id}`}
+      asChild
+      style={{ flex: 1, maxWidth: "50%" }}
+    >
       <Pressable
         style={[
           styles.moverContainer,
@@ -46,42 +48,14 @@ const MoverListItem = ({ mover }: MoverListItemProps) => {
           <Text style={[styles.moverArea, { color: Colors[colorScheme].text }]}>
             {mover.serviceArea}
           </Text>
-
-          <Text
-            style={[
-              styles.moverYearsInBusiness,
-              { color: Colors[colorScheme].text },
-            ]}
-          >
-            {mover.yearsInBusiness} in business
-          </Text>
-          <View style={styles.servicesContainer}>
-            <Text
-              style={[
-                styles.servicesLabel,
-                { color: Colors[colorScheme].text },
-              ]}
-            >
-              Services:
-            </Text>
-            {mover.services.map((service, index) => (
-              <Text
-                key={index}
-                style={[
-                  styles.serviceItem,
-                  { color: Colors[colorScheme].text },
-                ]}
-              >
-                • {service}
-              </Text>
-            ))}
-          </View>
           <View style={styles.ratingContainer}>
             {Array.from({ length: 5 }).map((_, index) => (
               <Ionicons
                 key={index}
                 name={
-                  index < Math.floor(mover.rating) ? "star" : "star-outline"
+                  index < Math.floor(mover.averageRating)
+                    ? "star"
+                    : "star-outline"
                 }
                 size={16}
                 color={Colors[colorScheme].accentColor}
@@ -90,7 +64,7 @@ const MoverListItem = ({ mover }: MoverListItemProps) => {
             <Text
               style={[styles.ratingText, { color: Colors[colorScheme].text }]}
             >
-              {mover.rating}
+              {mover.averageRating.toFixed(1)}
             </Text>
           </View>
           <Button title="Book Now" onPress={() => handleBookMover(mover._id)} />
@@ -103,40 +77,24 @@ const MoverListItem = ({ mover }: MoverListItemProps) => {
 export default MoverListItem;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  promptContainer: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  promptText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  moverList: {
-    paddingBottom: 16,
-  },
   moverContainer: {
-    flexDirection: "column",
     padding: 16,
     marginBottom: 16,
-    backgroundColor: "#FFF",
+    
     borderRadius: 8,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 3,
+    width: "100%", // Adjust width for two-column layout
+    marginHorizontal: "1%", // Add margin for spacing between columns
   },
   moverLogo: {
     width: "100%",
-    height: 200,
-    borderRadius: 32,
-    marginRight: 16,
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   moverDetails: {
     flex: 1,
@@ -144,36 +102,19 @@ const styles = StyleSheet.create({
   moverName: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 4,
   },
   moverArea: {
     fontSize: 14,
-    marginVertical: 4,
-  },
-  moverDescription: {
-    fontSize: 14,
-    marginVertical: 4,
-  },
-  moverYearsInBusiness: {
-    fontSize: 14,
-  },
-  servicesContainer: {
-    marginTop: 4,
-  },
-  servicesLabel: {
-    fontWeight: "bold",
-  },
-  serviceItem: {
-    marginLeft: 8,
-    marginTop: 4,
+    marginBottom: 4,
   },
   ratingContainer: {
     flexDirection: "row",
-
-    marginTop: 4,
+    alignItems: "center",
     marginBottom: 8,
   },
   ratingText: {
-    fontSize: 14,
     marginLeft: 4,
+    fontSize: 14,
   },
 });

@@ -11,7 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useFormContext } from "@/context/FormContext";
-import { DocumentData, MoverFormData } from "@/constants/types";
+import { DocumentData, Mover, MoverFormData } from "@/constants/types";
 import { useMutation } from "@tanstack/react-query";
 import { registerMover } from "@/api-client";
 import { useToast } from "react-native-toast-notifications";
@@ -33,6 +33,8 @@ export default function Summary() {
 
       if (typeof value === "string") {
         formData.append(key, value);
+      } else if (typeof value === "number") {
+        formData.append(key, value.toString());
       } else if (Array.isArray(value)) {
         // Convert arrays to JSON strings
         value.forEach((item) => formData.append(key, item));

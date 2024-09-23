@@ -17,6 +17,7 @@ import { ToastProvider } from "react-native-toast-notifications";
 import { FormProvider } from "@/context/FormContext";
 import { BecomeMoverProgressBarContextProvider } from "@/context/BecomeMoverProgressBar";
 import { BookMoveProgressBarContextProvider } from "@/context/BookMoveProgressBar";
+import { BookMoveFormProvider } from "@/context/BookMoveContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -74,32 +75,34 @@ function RootLayoutNav() {
             <FormProvider>
               <BecomeMoverProgressBarContextProvider>
                 <BookMoveProgressBarContextProvider>
-                  <Stack>
-                    <Stack.Screen
-                      name="(user)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(auth)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(becomeMover)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(bookingMove)"
-                      options={{ presentation: "modal", headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(onboarding)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="modal"
-                      options={{ presentation: "modal" }}
-                    />
-                  </Stack>
+                  <BookMoveFormProvider>
+                    <Stack>
+                      <Stack.Screen
+                        name="(user)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(auth)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(becomeMover)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(bookingMove)"
+                        options={{ presentation: "modal", headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(onboarding)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="modal"
+                        options={{ presentation: "modal" }}
+                      />
+                    </Stack>
+                  </BookMoveFormProvider>
                 </BookMoveProgressBarContextProvider>
               </BecomeMoverProgressBarContextProvider>
             </FormProvider>

@@ -23,6 +23,16 @@ export type SignInFormData = {
   password: string;
 };
 
+export type Review = {
+  _id: string;
+  rating: number;
+  reviewText: string;
+  userId: string;
+  moverId: string;
+  createdAt: string;
+  __v: number;
+};
+
 export type Mover = {
   _id: string;
   companyLogo: string | null;
@@ -30,7 +40,6 @@ export type Mover = {
   serviceArea: string;
   services: string[];
   yearsInBusiness: number;
-  rating: number;
   description: string;
   businessAddress: string;
   businessRegistrationDocument: string;
@@ -38,7 +47,12 @@ export type Mover = {
   governmentIssuedIdBack: string;
   insuranceDocument: string;
   certifications: string;
+  averageRating: number;
+  ratingsCount: number;
+  longitude: string;
+  latitude: string;
   verified: boolean;
+  reviews: Review[];
 };
 
 export type ImageData = {
@@ -64,6 +78,8 @@ export type MoverFormData = {
   governmentIssuedIdFront: ImageData;
   governmentIssuedIdBack: ImageData;
   insuranceDocument?: DocumentData;
+  longitude: number;
+  latitude: number;
 };
 
 export type FormData = {

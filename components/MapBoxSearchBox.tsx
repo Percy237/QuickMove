@@ -49,24 +49,6 @@ const MapBoxSearchBox = () => {
     }
   }, [placeDetails]);
 
-  useEffect(() => {
-    const fetchMap = async () => {
-      try {
-        const { coords } = await Location.getCurrentPositionAsync({});
-        const lon = coords.longitude;
-        const lat = coords.latitude;
-        const url = await fetchDefaultStaticMap(lon, lat);
-        setDefaultMapUrl(url);
-      } catch (error) {
-        console.error("Failed to get location or fetch map", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMap();
-  }, []);
-
   const { data: mapUrl } = useQuery({
     queryKey: ["staticMap", lon, lat],
     queryFn: () => fetchStaticMap(lon, lat),
@@ -130,14 +112,12 @@ const MapBoxSearchBox = () => {
         />
       )}
 
-      {mapUrl && (
-        <Image
-          style={styles.mapImage}
-          source={{
-            uri: mapUrl,
-          }}
-        />
-      )}
+      <Image
+        style={styles.mapImage}
+        source={{
+          uri: mapUrl,
+        }}
+      />
     </View>
   );
 };

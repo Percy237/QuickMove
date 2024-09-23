@@ -12,7 +12,8 @@ import Swiper from "react-native-swiper";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/Colors";
 const signInImage = require("../../assets/images/people-carrying-delivering-big-box-delivery-workers-working-warehouse-men-with-goods-carton-packaging-hands-two-guys-with-load.png");
-
+const onBoardingImage = require("../../assets/images/relocation-isometric-set-with-moving-families-movers-uniform-carrying-furniture-boxes-isolated-3d-vector-illustration.png");
+const onBoardingImage1 = require("../../assets/images/2305.i101.017.S.m004.c13.relocation service moving company relocating people isometric multistore.jpg");
 const { width, height } = Dimensions.get("window");
 
 const Index = () => {
@@ -61,7 +62,7 @@ const Index = () => {
           <Text
             style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}
           >
-            Welcome to MoveIt
+            Welcome to QuickMove
           </Text>
           <Text style={[styles.text, { color: Colors[colorScheme].text }]}>
             Your trusted moving service, simplifying your relocation process.
@@ -74,7 +75,7 @@ const Index = () => {
             { backgroundColor: Colors[colorScheme].background },
           ]}
         >
-          <Image source={signInImage} style={styles.image} />
+          <Image source={onBoardingImage} style={styles.image} />
           <Text
             style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}
           >
@@ -92,7 +93,7 @@ const Index = () => {
             { backgroundColor: Colors[colorScheme].background },
           ]}
         >
-          <Image source={signInImage} style={styles.image} />
+          <Image source={onBoardingImage1} style={styles.image} />
           <Text
             style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}
           >
