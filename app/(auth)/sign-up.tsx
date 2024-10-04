@@ -40,7 +40,7 @@ const SignUpScreen = () => {
     mutationFn: register,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["validateToken"] });
-      console.warn("Registration successful");
+
       Toast.success("Registration successful");
       router.push("/sign-in");
     },

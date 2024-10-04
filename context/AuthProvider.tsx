@@ -24,7 +24,6 @@ export const AuthContextProvider = ({
   let user;
   if (data) {
     user = data;
-    console.log("userData:", user);
   }
 
   return (

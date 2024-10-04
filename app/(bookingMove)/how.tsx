@@ -13,18 +13,13 @@ import BookMoveProgressBar from "@/components/BookMoveProgressBar";
 import { useBookMoveProgressBar } from "@/context/BookMoveProgressBar";
 import Colors from "@/constants/Colors";
 import { Controller, useForm } from "react-hook-form";
-
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useBookMoveFormContext } from "@/context/BookMoveContext";
 
-const step1 = () => {
+const Step1 = () => {
   const router = useRouter();
-  const { currentActive, handleNext, handlePrev } = useBookMoveProgressBar();
+  const { currentActive, handleNext } = useBookMoveProgressBar();
   const colorScheme = useColorScheme() || "light";
-  const [currentHouse, setCurrentHouse] = useState("");
-  const [currentHouseLocation, setCurrentHouseLocation] = useState("");
-  const [destinationHouseLocation, setDestinationHouseLocation] = useState("");
-  const [hasElevator, setHasElevator] = useState(false);
   const { formData, setFormData } = useBookMoveFormContext();
   const {
     control,
@@ -33,13 +28,14 @@ const step1 = () => {
     formState: { errors },
   } = useForm();
 
+  const { moverId } = useLocalSearchParams();
+
   const watchCurrentHouse = watch("currentHouse");
   const watchCurrentHouseLocation = watch("currentHouseLocation");
   const watchDestinationHouseLocation = watch("destinationHouseLocation");
-  const watchDestinationLocation = watch("destinationLocation");
 
   const onSubmit = (data: any) => {
-    setFormData(data);
+    setFormData({ moverId, ...data });
     handleNext();
     router.push("/where");
   };
@@ -53,9 +49,6 @@ const step1 = () => {
     >
       <BookMoveProgressBar />
       <ScrollView>
-        <Text
-          style={[styles.title, { color: Colors[colorScheme].titlePrimary }]}
-        ></Text>
         <Text>Your current house is</Text>
         <Controller
           control={control}
@@ -63,16 +56,13 @@ const step1 = () => {
             required: "This field is required",
           }}
           name="currentHouse"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <Picker
+              selectedValue={value}
+              onValueChange={(itemValue) => onChange(itemValue)}
               style={{
                 color: Colors[colorScheme].text,
                 borderColor: Colors[colorScheme].border,
-              }}
-              selectedValue={value}
-              onValueChange={(itemValue) => {
-                onChange(itemValue);
-                setCurrentHouse(itemValue);
               }}
             >
               <Picker.Item label="Choose" value="" />
@@ -92,7 +82,7 @@ const step1 = () => {
           <Text style={styles.errorText}>{errors.currentHouse.message}</Text>
         )}
 
-        {["villa", "duplex", "triplex", "apartment", "studio", "room"].includes(
+        {["villa", "duplex", "triplex", "apartment", "studio"].includes(
           watchCurrentHouse
         ) && (
           <>
@@ -103,7 +93,7 @@ const step1 = () => {
               rules={{
                 required: "This field is required",
               }}
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={styles.input}
                   keyboardType="numeric"
@@ -119,26 +109,45 @@ const step1 = () => {
           </>
         )}
 
-        <Text>It is located</Text>
+        <Text>Your current house is located</Text>
         <Controller
           control={control}
           name="currentHouseLocation"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Picker selectedValue={value} onValueChange={onChange}>
-              <Picker.Item label="Choose" value="floor" />
+          rules={{
+            required: "Please select where your current house is located.",
+          }}
+          render={({ field: { onChange, value } }) => (
+            <Picker
+              selectedValue={value}
+              onValueChange={onChange}
+              style={{
+                color: Colors[colorScheme].text,
+                borderColor: Colors[colorScheme].border,
+              }}
+            >
+              <Picker.Item label="Choose" value="" />
               <Picker.Item label="On the floor" value="floor" />
               <Picker.Item label="On the ground floor" value="groundFloor" />
               <Picker.Item label="In the basement" value="basement" />
             </Picker>
           )}
         />
-        {["floor"].includes(watchCurrentHouseLocation) && (
+        {errors.currentHouseLocation && (
+          <Text style={styles.errorText}>
+            {errors.currentHouseLocation.message}
+          </Text>
+        )}
+
+        {/* Only show the floor number input if the user selects "On the floor" */}
+        {watchCurrentHouseLocation === "floor" && (
           <>
             <Text>Floor number*</Text>
             <Controller
               control={control}
               name="currentHouseFloorNumber"
-              defaultValue=""
+              rules={{
+                required: "Please enter the floor number.",
+              }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={styles.input}
@@ -149,28 +158,44 @@ const step1 = () => {
                 />
               )}
             />
+            {errors.currentHouseFloorNumber && (
+              <Text style={styles.errorText}>
+                {errors.currentHouseFloorNumber.message}
+              </Text>
+            )}
           </>
         )}
+
         <Text>Your destination house is located</Text>
         <Controller
           control={control}
           name="destinationHouseLocation"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Picker selectedValue={value} onValueChange={onChange}>
-              <Picker.Item label="Choose" value="floor" />
+          render={({ field: { onChange, value } }) => (
+            <Picker
+              selectedValue={value}
+              onValueChange={onChange}
+              style={{
+                color: Colors[colorScheme].text,
+                borderColor: Colors[colorScheme].border,
+              }}
+            >
+              <Picker.Item label="Choose" value="" />
               <Picker.Item label="On the floor" value="floor" />
               <Picker.Item label="On the ground floor" value="groundFloor" />
               <Picker.Item label="In the basement" value="basement" />
             </Picker>
           )}
         />
-        {["floor"].includes(watchDestinationHouseLocation) && (
+        {/* Only show the floor number input if the destination house is on a floor */}
+        {watchDestinationHouseLocation === "floor" && (
           <>
             <Text>Floor number*</Text>
             <Controller
               control={control}
               name="destinationHouseFloorNumber"
-              defaultValue=""
+              rules={{
+                required: "Please enter the floor number.",
+              }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={styles.input}
@@ -181,8 +206,14 @@ const step1 = () => {
                 />
               )}
             />
+            {errors.destinationHouseFloorNumber && (
+              <Text style={styles.errorText}>
+                {errors.destinationHouseFloorNumber.message}
+              </Text>
+            )}
           </>
         )}
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[
@@ -206,7 +237,7 @@ const step1 = () => {
   );
 };
 
-export default step1;
+export default Step1;
 
 const styles = StyleSheet.create({
   container: {

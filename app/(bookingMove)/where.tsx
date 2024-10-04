@@ -7,7 +7,7 @@ import {
   Text,
   TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Colors from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { useBookMoveProgressBar } from "@/context/BookMoveProgressBar";
@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BookMoveProgressBar from "@/components/BookMoveProgressBar";
 import { useBookMoveFormContext } from "@/context/BookMoveContext";
 import MapViewDirections from "react-native-maps-directions";
+import * as Location from "expo-location";
 
 const Where = () => {
   const router = useRouter();
@@ -26,11 +27,62 @@ const Where = () => {
   const [destinationLocation, setDestinationLocation] = useState<any>(null);
   const [queryCurrentLocation, setQueryCurrentLocation] = useState("");
   const [queryDestinationLocation, setQueryDestinationLocation] = useState("");
+  const [distance, setDistance] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState<any>(null);
   const { formData, setFormData } = useBookMoveFormContext();
+
+  const calculateDistance = (lat1: any, lon1: any, lat2: any, lon2: any) => {
+    var p = 0.017453292519943295; // Math.PI / 180
+    var c = Math.cos;
+    var a =
+      0.5 -
+      c((lat2 - lat1) * p) / 2 +
+      (c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))) / 2;
+
+    return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setErrorMsg("Permission to access location was denied");
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync();
+        const { latitude, longitude } = location.coords;
+        const gpsLocation = {
+          place: "Current GPS Location",
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+        setCurrentLocation(gpsLocation);
+      } catch (error) {
+        console.error("Error getting location:", error);
+        setErrorMsg(
+          "Current location is unavailable. Make sure location services are enabled."
+        );
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (currentLocation && destinationLocation) {
+      const dist = calculateDistance(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        destinationLocation.latitude,
+        destinationLocation.longitude
+      );
+      setDistance(dist);
+    }
+  }, [destinationLocation, currentLocation]);
 
   const onSubmit = () => {
     handleNext();
-    setFormData({ currentLocation, destinationLocation });
+    setFormData({ currentLocation, destinationLocation, distance });
     router.push("/when");
   };
 
@@ -42,6 +94,10 @@ const Where = () => {
       ]}
     >
       <BookMoveProgressBar />
+      {/* <TouchableOpacity onPress={() => setCurrentLocation}>
+        <Ionicons name="location" size={24} color={Colors[colorScheme].tint} />
+        <Text>Use Current Location</Text>
+      </TouchableOpacity> */}
 
       {/* Google Places Autocomplete for Current Location */}
       <View style={{ marginTop: 20 }}>
@@ -180,6 +236,7 @@ const Where = () => {
               }}
             />
           )}
+
           {currentLocation && destinationLocation && (
             <MapViewDirections
               origin={{

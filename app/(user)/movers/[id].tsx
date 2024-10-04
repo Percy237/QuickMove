@@ -6,6 +6,7 @@ import {
   View,
   Image,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import React from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -17,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getMover } from "@/api-client";
 import Spinner from "@/components/Spinner";
 import { err } from "react-native-svg";
+import { Review } from "@/constants/types";
 
 const MoverDetailScreen = () => {
   const colorScheme = useColorScheme() || "light";
@@ -87,55 +89,138 @@ const MoverDetailScreen = () => {
         source={{ uri: mover.companyLogo || defaultMoverImage }}
         style={styles.moverLogo}
       />
-      <View style={styles.moverDetails}>
-        <Text style={[styles.moverName, { color: Colors[colorScheme].text }]}>
+      <View style={styles.moverCard}>
+        <Text
+          style={[
+            styles.moverName,
+            { color: Colors[colorScheme].titlePrimary },
+          ]}
+        >
           {mover.businessName}
-        </Text>
-        <Text style={[styles.moverArea, { color: Colors[colorScheme].text }]}>
-          {mover.serviceArea}
-        </Text>
-        <Text style={[styles.moverArea, { color: Colors[colorScheme].text }]}>
-          {mover.description}
         </Text>
         <Text
           style={[
-            styles.moverYearsInBusiness,
-            { color: Colors[colorScheme].text },
+            styles.moverArea,
+            { color: Colors[colorScheme].titleSecondary },
           ]}
         >
-          {mover.yearsInBusiness} in business
+          {mover.serviceArea}
+        </Text>
+        <Text
+          style={[styles.moverDescription, { color: Colors[colorScheme].text }]}
+        >
+          {mover.description}
         </Text>
         <View style={styles.servicesContainer}>
           <Text
             style={[styles.servicesLabel, { color: Colors[colorScheme].text }]}
           >
-            Services:
+            Services Offered:
           </Text>
           {mover.services.map((service, index) => (
-            <Text
-              key={index}
-              style={[styles.serviceItem, { color: Colors[colorScheme].text }]}
-            >
-              • {service}
-            </Text>
+            <View key={index} style={styles.serviceItemContainer}>
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={16}
+                color={Colors[colorScheme].tint}
+              />
+              <Text
+                style={[
+                  styles.serviceItem,
+                  { color: Colors[colorScheme].text },
+                ]}
+              >
+                {service}
+              </Text>
+            </View>
           ))}
         </View>
         <View style={styles.ratingContainer}>
           {Array.from({ length: 5 }).map((_, index) => (
             <Ionicons
               key={index}
-              name={index < Math.floor(mover.rating) ? "star" : "star-outline"}
-              size={16}
+              name={
+                index < Math.floor(mover.averageRating)
+                  ? "star"
+                  : "star-outline"
+              }
+              size={18}
               color={Colors[colorScheme].accentColor}
             />
           ))}
           <Text
             style={[styles.ratingText, { color: Colors[colorScheme].text }]}
           >
-            {mover.rating}
+            {mover.averageRating.toFixed(1)} / 5
           </Text>
         </View>
-        <Button title="Book Now" onPress={() => handleBookMover(mover._id)} />
+        <TouchableOpacity
+          style={[
+            styles.bookButton,
+            { backgroundColor: Colors[colorScheme].buttonPrimary },
+          ]}
+          onPress={() => handleBookMover(mover._id)}
+        >
+          <Text style={styles.bookButtonText}>Book Now</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <Text style={{ color: Colors[colorScheme].text, fontSize: 20 }}>
+          Reviews:
+        </Text>
+        {mover.reviews && mover.reviews.length > 0 ? (
+          mover.reviews.map((review: Review, index) => (
+            <View
+              key={review._id}
+              style={[
+                styles.reviewCard,
+                { backgroundColor: Colors[colorScheme].background },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.reviewerName,
+                  { color: Colors[colorScheme].text },
+                ]}
+              >
+                {review.userId ? `${review.userId.firstName}` : "Anonymous"}
+              </Text>
+              <Text
+                style={[styles.reviewText, { color: Colors[colorScheme].text }]}
+              >
+                {review.reviewText}
+              </Text>
+              <View style={styles.ratingContainer}>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Ionicons
+                    key={index}
+                    name={
+                      index < Math.floor(review.rating)
+                        ? "star"
+                        : "star-outline"
+                    }
+                    size={16}
+                    color={Colors[colorScheme].accentColor}
+                  />
+                ))}
+                <Text
+                  style={[
+                    styles.ratingText,
+                    { color: Colors[colorScheme].text },
+                  ]}
+                >
+                  {review.rating.toFixed(1)}
+                </Text>
+              </View>
+            </View>
+          ))
+        ) : (
+          <Text
+            style={[styles.noReviewText, { color: Colors[colorScheme].text }]}
+          >
+            No reviews yet.
+          </Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -165,9 +250,8 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     padding: 16,
     marginBottom: 16,
-    backgroundColor: "#FFF",
     borderRadius: 8,
-    shadowColor: "#000",
+    shadowColor: "#fff",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -179,41 +263,89 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     marginRight: 16,
   },
-  moverDetails: {
-    flex: 1,
+  moverCard: {
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4,
+    marginBottom: 20,
   },
   moverName: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
+    marginBottom: 8,
   },
   moverArea: {
-    fontSize: 14,
-    marginVertical: 4,
+    fontSize: 16,
+    marginBottom: 10,
   },
   moverDescription: {
     fontSize: 14,
-    marginVertical: 4,
-  },
-  moverYearsInBusiness: {
-    fontSize: 14,
+    fontStyle: "italic",
+    marginBottom: 20,
   },
   servicesContainer: {
-    marginTop: 4,
+    marginBottom: 20,
   },
   servicesLabel: {
+    fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 8,
+  },
+  serviceItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
   },
   serviceItem: {
-    marginLeft: 8,
-    marginTop: 4,
+    marginLeft: 6,
+    fontSize: 14,
   },
   ratingContainer: {
     flexDirection: "row",
-    marginTop: 4,
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 20,
   },
   ratingText: {
+    fontSize: 16,
+    marginLeft: 8,
+    fontWeight: "600",
+  },
+  bookButton: {
+    paddingVertical: 12,
+    borderRadius: 25,
+    alignItems: "center",
+  },
+  bookButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  reviewCard: {
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  reviewerName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  reviewText: {
     fontSize: 14,
-    marginLeft: 4,
+    fontStyle: "italic",
+    marginBottom: 8,
+  },
+  noReviewText: {
+    textAlign: "center",
+    fontSize: 16,
   },
 });

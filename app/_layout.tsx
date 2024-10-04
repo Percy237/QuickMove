@@ -82,6 +82,10 @@ function RootLayoutNav() {
                         options={{ headerShown: false }}
                       />
                       <Stack.Screen
+                        name="(mover)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
                         name="(auth)"
                         options={{ headerShown: false }}
                       />

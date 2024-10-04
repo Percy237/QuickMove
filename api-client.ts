@@ -1,5 +1,5 @@
 import * as SecureStore from "expo-secure-store";
-import { MoverFormData, SignUpFormData } from "./constants/types";
+import { MoverFormData, PricingType, SignUpFormData } from "./constants/types";
 import { SignInFormData } from "./constants/types";
 import { useRouter } from "expo-router";
 
@@ -114,11 +114,59 @@ export const getMover = async (id: string): Promise<any> => {
   }
 };
 
-export const fetchData = async () => {
+export const getMoverProfile = async (id: string): Promise<any> => {
   const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(`${API_BASE_URL}/api/mover-profile/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch mover profile");
+  }
+};
 
+export const getPricing = async (moverId: string): Promise<any> => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(`${API_BASE_URL}/api/get-pricing/${moverId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch mover profile");
+  }
+};
+
+export const createPricing = async (formData: any): Promise<any> => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(`${API_BASE_URL}/api/create-or-update-pricing`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+  const responseBody = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseBody.message);
+  }
+};
+
+export const getMoverBookings = async (moverId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
   const response = await fetch(
-    "http://your-ip-address:8000/api/protected-route",
+    `${API_BASE_URL}/api/mover-bookings/${moverId}`,
     {
       method: "GET",
       headers: {
@@ -126,53 +174,26 @@ export const fetchData = async () => {
       },
     }
   );
-
   if (response.ok) {
     const data = await response.json();
     return data;
   } else {
-    throw new Error("Failed to fetch data");
+    throw new Error("Failed to fetch mover bookings");
   }
 };
 
-// MAP REQUESTS
-export const fetchSearchResults = async (query: string) => {
-  const secretAccessToken = MAPBOX_SECRET_ACCESS_TOKEN;
-  const url = `https://api.mapbox.com/search/searchbox/v1/suggest?q=${encodeURIComponent(
-    query
-  )}&language=en&country=cm&session_token=0d125fa5-69e1-47d1-891f-58c247201762&access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
-
-  try {
-    const response = await fetch(url);
+export const getBooking = async (bookingId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(`${API_BASE_URL}/api/booking/${bookingId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.ok) {
     const data = await response.json();
-
-    return data.suggestions;
-  } catch (error) {
-    console.error("Error fetching search results: ", error);
+    return data;
+  } else {
+    throw new Error("Failed to fetch mover booking");
   }
 };
-
-export const fetchAddressDetails = async (mapboxId: string) => {
-  const url = `https://api.mapbox.com/search/searchbox/v1/retrieve/${mapboxId}?session_token=0d125fa5-69e1-47d1-891f-58c247201762&access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data.features;
-  } catch (error) {
-    console.error("Error fetching search results: ", error);
-  }
-};
-
-export const fetchStaticMap = async (lon: string, lat: string) => {
-  const url = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+555555(${lon},${lat})/${lon},${lat},9.11,0/300x200@2x?access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
-
-  return url;
-};
-
-export const fetchDefaultStaticMap = async (lon: number, lat: number) => {
-  const url = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+555555(${lon},${lat})/${lon},${lat},9.11,0/300x200@2x?access_token=pk.eyJ1IjoidHBlcmN5MjM3IiwiYSI6ImNtMTFxMnlzMDB0MDcyb3IzcHk2bGh1amYifQ.-lX_SlE4WXuKC4duG5mzQg`;
-
-  return url;
-};
-

@@ -28,10 +28,10 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="movers"
+        name="bookings"
         options={{
           headerShown: false,
-          title: "Movers",
+          title: "Bookings",
 
           tabBarIcon: ({ color }) => <TabBarIcon name="truck" color={color} />,
           headerRight: () => (

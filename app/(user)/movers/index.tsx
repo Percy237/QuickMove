@@ -24,9 +24,6 @@ import { Mover } from "@/constants/types";
 export default function CustomerHomeScreen() {
   const colorScheme = useColorScheme() || "light";
   const router = useRouter();
-  const handleBecomeMover = () => {
-    router.push("/(becomeMover)/step");
-  };
 
   const {
     data: movers,
@@ -103,7 +100,7 @@ export default function CustomerHomeScreen() {
     return distance;
   };
   const deg2rad = (deg: number) => deg * (Math.PI / 180);
-  console.log("nearbyMovers: ", nearbyMovers);
+
   return (
     <View
       style={[
@@ -113,7 +110,6 @@ export default function CustomerHomeScreen() {
     >
       <View>
         <Text style={{ fontSize: 20 }}>Top Rated Movers</Text>
-        <Text onPress={handleBecomeMover}>Become a mover</Text>
       </View>
       <View>
         {isLoading ? (

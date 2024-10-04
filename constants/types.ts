@@ -96,3 +96,50 @@ export type FormData = {
 };
 
 export const Services = ["Full-Service", "Self-Service", "Specialized-Service"];
+
+type ServiceType = {
+  serviceType: "fullService" | "selfService";
+  basePrice: number;
+  chargePerKm: number;
+};
+
+export type PricingType = {
+  services: ServiceType[];
+};
+
+export type BookingType = {
+  _id: string;
+  userId: string;
+  currentHouse: string;
+  currentHouseFloorNumber: string;
+  currentHouseLocation: string;
+  currentLocation: {
+    place: string;
+    latitude: number;
+    longitude: number;
+  };
+  destinationHouseFloorNumber: string;
+  destinationHouseLocation: string;
+  destinationLocation: {
+    place: string;
+    latitude: number;
+    longitude: number;
+  };
+  distance: number;
+  finalPrice: number;
+  formattedDate: string;
+  formattedTime: string;
+  moverId: string;
+  nbRooms: string;
+  service: string;
+  status:
+    | "pending"
+    | "confirmed"
+    | "canceled"
+    | "paid"
+    | "declined"
+    | "completed"
+    | "in-progress";
+  specialInstructions: string;
+  createdAt: string;
+};

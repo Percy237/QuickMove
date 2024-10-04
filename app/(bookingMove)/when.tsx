@@ -84,8 +84,8 @@ const when = () => {
             }}
           >
             <Picker.Item label="Choose" value="" />
-            <Picker.Item label="Full Service" value="Full-Service" />
-            <Picker.Item label="Self Service" value="Self-Service" />
+            <Picker.Item label="Full Service" value="fullService" />
+            <Picker.Item label="Self Service" value="selfService" />
             <Picker.Item
               label="Specialized Service"
               value="Specialized Service"

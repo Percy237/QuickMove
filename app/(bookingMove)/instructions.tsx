@@ -6,7 +6,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Colors from "@/constants/Colors";
 import BookMoveProgressBar from "@/components/BookMoveProgressBar";
@@ -18,6 +18,21 @@ const instructions = () => {
   const colorScheme = useColorScheme() || "light";
   const { handleNext, handlePrev } = useBookMoveProgressBar();
   const { formData, setFormData } = useBookMoveFormContext();
+  const [inventory, setInventory] = useState([
+    { id: Date.now(), itemName: "", quantity: 1, isFragile: false },
+  ]);
+
+  const addInventoryItem = () => {
+    setInventory([
+      ...inventory,
+      { id: Date.now(), itemName: "", quantity: 1, isFragile: false },
+    ]);
+  };
+
+  const removeInventoryItem = (id) => {
+    setInventory(inventory.filter((item) => item.id !== id));
+  };
+  
   const router = useRouter();
   const {
     control,
@@ -28,7 +43,7 @@ const instructions = () => {
   const onSubmit = (data: any) => {
     console.log(data);
     setFormData(data);
-    router.push("/(bookingMove)\bookingSummary");
+    router.push("/bookingSummary");
   };
 
   return (
