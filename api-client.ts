@@ -4,10 +4,6 @@ import { SignInFormData } from "./constants/types";
 import { useRouter } from "expo-router";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-const MAPBOX_SECRET_ACCESS_TOKEN =
-  process.env.EXPO_PUBLIC_MAPBOX_SECRET_ACCESS_TOKEN;
-const MAPBOX_PUBLIC_ACCESS_TOKEN =
-  process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN;
 
 export const register = async (formData: SignUpFormData): Promise<any> => {
   const response = await fetch(`${API_BASE_URL}/api/users/register`, {
@@ -182,6 +178,21 @@ export const getMoverBookings = async (moverId: string) => {
   }
 };
 
+export const getUserBookings = async (userId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(`${API_BASE_URL}/api/user-bookings/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to fetch user bookings");
+  }
+};
 export const getBooking = async (bookingId: string) => {
   const token = await SecureStore.getItemAsync("jwt_token");
   const response = await fetch(`${API_BASE_URL}/api/booking/${bookingId}`, {
@@ -195,5 +206,81 @@ export const getBooking = async (bookingId: string) => {
     return data;
   } else {
     throw new Error("Failed to fetch mover booking");
+  }
+};
+
+export const confirmBooking = async (bookingId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(
+    `${API_BASE_URL}/api/booking/${bookingId}/status/confirm`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to update booking status");
+  }
+};
+
+export const declineBooking = async (bookingId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(
+    `${API_BASE_URL}/api/booking/${bookingId}/status/decline`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to update booking status");
+  }
+};
+
+export const inProgressBooking = async (bookingId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(
+    `${API_BASE_URL}/api/booking/${bookingId}/status/inprogress`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to update booking status");
+  }
+};
+
+export const onCompleteBooking = async (bookingId: string) => {
+  const token = await SecureStore.getItemAsync("jwt_token");
+  const response = await fetch(
+    `${API_BASE_URL}/api/booking/${bookingId}/status/complete`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error("Failed to update booking status");
   }
 };

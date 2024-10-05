@@ -51,6 +51,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="bookings"
+        options={{
+          headerShown: false,
+          title: "My Transit",
+          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           headerShown: false,

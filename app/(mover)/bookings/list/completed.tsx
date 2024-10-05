@@ -1,33 +1,62 @@
 import Colors from "@/constants/Colors";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  FlatList,
-  Image,
-  useColorScheme,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
-
-import * as Location from "expo-location";
-
-import { useQuery } from "@tanstack/react-query";
-import { getAllMovers } from "@/api-client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getMoverBookings, getMoverProfile } from "@/api-client";
+import { useAuthContext } from "@/context/AuthProvider";
+import BookListItem from "@/components/BookListItem"; // Import the component
+import { BookingType } from "@/constants/types";
 
 export default function CustomerHomeScreen() {
   const colorScheme = useColorScheme() || "light";
   const router = useRouter();
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
 
   const {
-    data: movers,
-    isLoading,
-    isError,
-    error,
+    data: moverDetails,
+    error: userError,
+    isLoading: isLoadingUser,
+    isError: isUserError,
   } = useQuery({
-    queryKey: ["allMovers"],
-    queryFn: getAllMovers,
+    queryKey: ["mover-profile", user?.user?._id],
+    queryFn: () => getMoverProfile(user?.user?._id as string),
+    enabled: !!user?.user?._id,
   });
+
+  queryClient.invalidateQueries({
+    queryKey: ["mover-profile", { type: "done" }],
+  });
+
+  const moverId = moverDetails?._id;
+
+  const {
+    data: moverBookings,
+    error: moverError,
+    isLoading: isLoadingMoverBookings,
+    isError: isMoverBookingsError,
+  } = useQuery({
+    queryKey: ["mover-bookings", moverId],
+    queryFn: () => getMoverBookings(moverId as string),
+    enabled: !!moverId,
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: ["mover-bookings", { type: "done" }],
+  });
+
+  if (isLoadingUser || isLoadingMoverBookings) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (isUserError || isMoverBookingsError) {
+    return <Text>Error loading data</Text>;
+  }
+
+  // Filter pending bookings
+  const pendingBookings = moverBookings?.filter(
+    (booking: BookingType) => booking.status === "completed"
+  );
 
   return (
     <View
@@ -36,7 +65,12 @@ export default function CustomerHomeScreen() {
         { backgroundColor: Colors[colorScheme].background },
       ]}
     >
-      <Text> Completed</Text>
+      <FlatList
+        data={pendingBookings}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => <BookListItem moverBookings={item} />}
+        ListEmptyComponent={<Text>No completed bookings available.</Text>}
+      />
     </View>
   );
 }

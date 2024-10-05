@@ -18,6 +18,7 @@ import { FormProvider } from "@/context/FormContext";
 import { BecomeMoverProgressBarContextProvider } from "@/context/BecomeMoverProgressBar";
 import { BookMoveProgressBarContextProvider } from "@/context/BookMoveProgressBar";
 import { BookMoveFormProvider } from "@/context/BookMoveContext";
+import NotificationContextProvider from "@/context/NotificationContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -70,48 +71,53 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
-        <AuthContextProvider>
-          <ToastProvider offsetTop={50}>
-            <FormProvider>
-              <BecomeMoverProgressBarContextProvider>
-                <BookMoveProgressBarContextProvider>
-                  <BookMoveFormProvider>
-                    <Stack>
-                      <Stack.Screen
-                        name="(user)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(mover)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(auth)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(becomeMover)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(bookingMove)"
-                        options={{ presentation: "modal", headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(onboarding)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="modal"
-                        options={{ presentation: "modal" }}
-                      />
-                    </Stack>
-                  </BookMoveFormProvider>
-                </BookMoveProgressBarContextProvider>
-              </BecomeMoverProgressBarContextProvider>
-            </FormProvider>
-          </ToastProvider>
-        </AuthContextProvider>
+        <NotificationContextProvider>
+          <AuthContextProvider>
+            <ToastProvider offsetTop={50}>
+              <FormProvider>
+                <BecomeMoverProgressBarContextProvider>
+                  <BookMoveProgressBarContextProvider>
+                    <BookMoveFormProvider>
+                      <Stack>
+                        <Stack.Screen
+                          name="(user)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(mover)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(auth)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(becomeMover)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(bookingMove)"
+                          options={{
+                            presentation: "modal",
+                            headerShown: false,
+                          }}
+                        />
+                        <Stack.Screen
+                          name="(onboarding)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="modal"
+                          options={{ presentation: "modal" }}
+                        />
+                      </Stack>
+                    </BookMoveFormProvider>
+                  </BookMoveProgressBarContextProvider>
+                </BecomeMoverProgressBarContextProvider>
+              </FormProvider>
+            </ToastProvider>
+          </AuthContextProvider>
+        </NotificationContextProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

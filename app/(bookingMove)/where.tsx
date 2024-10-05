@@ -100,15 +100,8 @@ const Where = () => {
       </TouchableOpacity> */}
 
       {/* Google Places Autocomplete for Current Location */}
-      <View style={{ marginTop: 20 }}>
+      <View>
         <View style={styles.searchBar}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={Colors[colorScheme].tint}
-            />
-          </TouchableOpacity>
           <GooglePlacesAutocomplete
             placeholder="Your current location"
             onPress={(data, details = null) => {
@@ -157,13 +150,6 @@ const Where = () => {
       {/* Google Places Autocomplete for Destination Location */}
       <View style={{ marginTop: 40 }}>
         <View style={styles.searchBar}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={Colors[colorScheme].tint}
-            />
-          </TouchableOpacity>
           <GooglePlacesAutocomplete
             placeholder="Your destination location"
             onPress={(data, details = null) => {

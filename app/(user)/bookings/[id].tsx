@@ -277,38 +277,15 @@ const BookingDetailScreen = () => {
       </ScrollView>
       {status === "pending" && (
         <View style={styles.pendingActionsContainer}>
-          <TouchableOpacity
-            style={styles.buttonSecondary}
-            onPress={onConfirmBooking} // Fixed: This should be for confirming the booking
-          >
-            <Ionicons name="create-outline" size={20} color="#003566" />
-            <Text style={styles.buttonTextSecondary}>Confirm Booking</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={onDeclineBooking}>
-            <Ionicons name="close-circle" size={20} color="white" />
-            <Text style={styles.buttonText}>Decline Booking</Text>
-          </TouchableOpacity>
+          <Text>When Logistic Provider confirm then you can pay</Text>
         </View>
       )}
-      {status === "paid" && (
+
+      {status === "confirmed" && (
         <View style={styles.paidActionsContainer}>
-          <TouchableOpacity
-            style={styles.buttonSecondary}
-            onPress={onConfirmBooking} // Fixed: This should be for confirming the booking
-          >
-            <Ionicons name="create-outline" size={20} color="#003566" />
-            <Text style={styles.buttonTextSecondary}>Transit In Progress</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      {status === "in-progress" && (
-        <View style={styles.paidActionsContainer}>
-          <TouchableOpacity
-            style={styles.buttonSecondary}
-            onPress={onCompleteBooking} // Fixed: This should be for confirming the booking
-          >
-            <Ionicons name="create-outline" size={20} color="#003566" />
-            <Text style={styles.buttonTextSecondary}>Completed</Text>
+          <TouchableOpacity style={styles.buttonSecondary}>
+            <Ionicons name="cash" size={20} color="#003566" />
+            <Text style={styles.buttonTextSecondary}>Pay for transit</Text>
           </TouchableOpacity>
         </View>
       )}

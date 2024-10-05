@@ -1,7 +1,7 @@
 import Colors from "@/constants/Colors";
 import { View, Text, StyleSheet, FlatList, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMoverBookings, getMoverProfile } from "@/api-client";
 import { useAuthContext } from "@/context/AuthProvider";
 import BookListItem from "@/components/BookListItem"; // Import the component
@@ -11,6 +11,7 @@ export default function CustomerHomeScreen() {
   const colorScheme = useColorScheme() || "light";
   const router = useRouter();
   const { user } = useAuthContext();
+  const queryClient = useQueryClient();
 
   const {
     data: moverDetails,
@@ -21,6 +22,10 @@ export default function CustomerHomeScreen() {
     queryKey: ["mover-profile", user?.user?._id],
     queryFn: () => getMoverProfile(user?.user?._id as string),
     enabled: !!user?.user?._id,
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: ["mover-profile", { type: "done" }],
   });
 
   const moverId = moverDetails?._id;
@@ -34,6 +39,10 @@ export default function CustomerHomeScreen() {
     queryKey: ["mover-bookings", moverId],
     queryFn: () => getMoverBookings(moverId as string),
     enabled: !!moverId,
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: ["mover-bookings", { type: "done" }],
   });
 
   if (isLoadingUser || isLoadingMoverBookings) {
